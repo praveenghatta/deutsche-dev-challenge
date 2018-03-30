@@ -1,0 +1,37 @@
+<html>
+<head>
+    <!--
+    This is the library that provides websocket streaming pub/sub
+    The dev serverver is serving the html and javascript, but it also provides updating fx data on /fx/prices.
+     -->
+    <script src="stomp.js"></script>
+    <script src="sparkline.js"></script>
+</head>
+<body>
+
+<!-- This is a description of what you should do for this task.  You can remove it for your answer -->
+<section class="content">
+    <h1>Updating Table</h1>
+</section>
+
+<table id="dataTable">
+    <!--<tbody style="display:flex;flex-direction:column;">-->
+        <tr>
+            <th>Name</th>
+            <th>Best Bid</th>
+            <th>Best Ask</th>
+            <th>Open Bid</th>
+            <th>Open Ask</th>
+            <th>Last Changed Ask</th>
+            <th>Last Changed Bid</th>
+            <th>Mid Price</th>
+        </tr>
+    <!--</tbody>-->
+</table>
+
+<!-- Code you write in index.js and anything it depends on will be bundled into bundle.js and
+     is included here -->
+<script src="bundle.js"></script>
+
+</body>
+</html>
