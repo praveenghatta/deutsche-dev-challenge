@@ -43,17 +43,8 @@ client.connect({}, connectCallback, function(error) {
 
 function updateStompData(data) {
 
-    if(refreshInterval == undefined){
-        refreshInterval = setInterval(function(){
-            //console.log('SparkData Refresh For - ', data.name);
-            midPriceData = []; //reset it to empty ...
-            clearInterval(refreshInterval);
-
-            //explicitly setting as undefined, as we dont want the interval to be cleared on every new incoming data
-            //this way post 30 seconds, the interval will be created again specifically.
-            refreshInterval = undefined;
-        }, 30000);
-    }
+    if(refreshInterval == undefined)
+        applyTimer();
 
     //generate the mid price data before capturing it in Latest data object ...
     if(!midPriceData.hasOwnProperty(data.name))
@@ -62,30 +53,42 @@ function updateStompData(data) {
     data['midPrice'] = midPriceData[data.name];
 
     var table = document.querySelector('#dataTable');
-    var row = document.querySelector("#" + data.name);
 
-    var tr = document.createElement("tr");
-    tr.setAttribute("id", data["name"]);
-    tr.setAttribute("data-lastChangeBid", data["lastChangeBid"]); //used for sorting data later ...
+    if(table != undefined){
+        var tr = document.createElement("tr");
+        tr.setAttribute("id", data["name"]);
+        tr.setAttribute("data-lastChangeBid", data["lastChangeBid"]); //used for sorting data later ...
 
-    for (var key in data) {
-        var cell = fetchCellData(data[key], key);
-        tr.appendChild(cell);
+        for (var key in data) {
+            var cell = fetchCellData(data[key], key);
+            tr.appendChild(cell);
+        }
+
+        //always update the existing object with the new data...
+        rowsHolder[data.name] = tr;
+
+        //delete all rows except first header row..
+        for (var i = table.rows.length; i > 1; i--)
+            table.deleteRow(i - 1);
+
+        //sort all the rowsHolder array before adding it to DOM...
+        var sortedData = sortRowsHolder(rowsHolder);
+
+        //append all the nodes present in rowsHolder...
+        for(var row in sortedData)
+            table.appendChild(sortedData[row]);
     }
+}
 
-    //always update the existing object with the new data...
-    rowsHolder[data.name] = tr;
+function applyTimer() {
+    refreshInterval = setInterval(function () {
+        midPriceData = []; //reset it to empty ...
+        clearInterval(refreshInterval); //clear the interval
 
-    //delete all rows except first header row..
-    for (var i = document.getElementById("dataTable").rows.length; i > 1; i--)
-        document.getElementById("dataTable").deleteRow(i - 1);
-
-    //sort all the rowsHolder array ...
-    var sortedData = sortRowsHolder(rowsHolder);
-
-    //append all the nodes present in rowsHolder...
-    for(var row in sortedData)
-        table.appendChild(sortedData[row]);
+        //explicitly setting as undefined, as we dont want the interval to be cleared on every new incoming data
+        //this way post 30 seconds, the interval will be created again specifically.
+        refreshInterval = undefined;
+    }, 30000);
 }
 
 function fetchCellData(data, key){
@@ -95,7 +98,12 @@ function fetchCellData(data, key){
         var span = document.createElement("span");
         Sparkline.draw(span, data);
         cell.appendChild(span);
-    }else{
+    }
+    else if(key == 'name'){
+        var cellText = document.createTextNode(data.toUpperCase());
+        cell.appendChild(cellText);
+    }
+    else{
         var cellText = document.createTextNode(data);
         cell.appendChild(cellText);
     }
@@ -103,6 +111,7 @@ function fetchCellData(data, key){
     return cell;
 }
 
+//function to sort the objects based on a property value..
 function compare(a,b) {
     if (a.getAttribute('data-lastChangeBid') < b.getAttribute('data-lastChangeBid'))
         return 1;
