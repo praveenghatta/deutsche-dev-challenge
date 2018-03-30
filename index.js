@@ -16,10 +16,9 @@ require('./site/style.css')
 // Change this to get detailed logging from the stomp library
 global.DEBUG = false;
 
-var stompData = []; //holds the latest set of data always..
-var rowsHolder = {};
-var midPriceData = {};
-var refreshInterval;
+var rowsHolder = {};   //holds the existing rows of the table always.
+var midPriceData = {}; //holds the last 30 secs data
+var refreshInterval;   //holds the timers clearInterval variable
 
 const url = "ws://localhost:8011/stomp"
 const client = Stomp.client(url)
@@ -61,9 +60,6 @@ function updateStompData(data) {
         midPriceData[data.name] = [];
     midPriceData[data.name].push((data.bestBid + data.bestAsk)/2);
     data['midPrice'] = midPriceData[data.name];
-
-    //capture the new data in the latest data object.
-    stompData[data.name] = data;
 
     var table = document.querySelector('#dataTable');
     var row = document.querySelector("#" + data.name);
