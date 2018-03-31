@@ -95,7 +95,7 @@ function applyTimer() {
             refreshInterval = undefined;
         }catch(error){
             console.log(error);
-           // throw error; ///new Error(error.message());
+           // throw error;
         }
     }, interval_time);
 }
