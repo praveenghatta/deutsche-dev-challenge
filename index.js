@@ -20,26 +20,30 @@ var rowsHolder = {};   //holds the existing rows of the table always.
 var midPriceData = {}; //holds the last 30 secs data
 var refreshInterval;   //holds the timers clearInterval variable
 
-const url = "ws://localhost:8011/stomp"
-const client = Stomp.client(url)
+const url = "ws://localhost:8011/stomp";
+const prices_url = '/fx/prices';
+const interval_time = 30000;
+
+const client = Stomp.client(url);
+
 client.debug = function(msg) {
   if (global.DEBUG) {
     console.info(msg);
   }
 }
 
-function connectCallback() {
-    var destination = '/fx/prices';
-    var sub = client.subscribe(destination, function(message) {
-        if(message.body != null){
-            updateStompData(JSON.parse(message.body));
-        }
-    });
-}
-
-client.connect({}, connectCallback, function(error) {
-  alert(error.headers.message)
-});
+client.connect(
+    {},
+    function(){
+        client.subscribe(prices_url, function(message) {
+            if(message.body != null)
+                updateStompData(JSON.parse(message.body));
+        });
+    },
+    function(error) {
+        console.log(error.headers.message);
+    }
+);
 
 function updateStompData(data) {
 
@@ -88,7 +92,7 @@ function applyTimer() {
         //explicitly setting as undefined, as we dont want the interval to be cleared on every new incoming data
         //this way post 30 seconds, the interval will be created again specifically.
         refreshInterval = undefined;
-    }, 30000);
+    }, interval_time);
 }
 
 function fetchCellData(data, key){
