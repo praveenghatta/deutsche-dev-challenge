@@ -86,12 +86,17 @@ function updateStompData(data) {
 
 function applyTimer() {
     refreshInterval = setInterval(function () {
-        midPriceData = []; //reset it to empty ...
-        clearInterval(refreshInterval); //clear the interval
+        try{
+            midPriceData = []; //reset it to empty ...
+            clearInterval(refreshInterval); //clear the interval
 
-        //explicitly setting as undefined, as we dont want the interval to be cleared on every new incoming data
-        //this way post 30 seconds, the interval will be created again specifically.
-        refreshInterval = undefined;
+            //explicitly setting as undefined, as we dont want the interval to be cleared on every new incoming data
+            //this way post 30 seconds, the interval will be created again specifically.
+            refreshInterval = undefined;
+        }catch(error){
+            console.log(error);
+           // throw error; ///new Error(error.message());
+        }
     }, interval_time);
 }
 
@@ -131,5 +136,6 @@ function sortRowsHolder(rowsObj){
         arr.push(rowsObj[k]);
 
     arr.sort(compare);
+
     return arr;
 }
